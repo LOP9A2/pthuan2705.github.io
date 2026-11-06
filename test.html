@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="vi" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diễn đàn Học tập & Tư vấn Tâm lý học đường - EduForum THCS</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        pastel: {
+                            bg: '#F7F9FC',
+                            card: '#FFFFFF',
+                            mint: '#D8F3DC',
+                            mintDark: '#2D6A4F',
+                            blue: '#E0F2FE',
+                            blueDark: '#0369A1',
+                            pink: '#FFE5EC',
+                            pinkDark: '#9E2A2B',
+                            yellow: '#FEF3C7',
+                            yellowDark: '#B45309',
+                            purple: '#EDE9FE',
+                            purpleDark: '#6D28D9',
+                            gray: '#F1F5F9',
+                            text: '#334155',
+                            muted: '#64748B'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F1F5F9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
+    </style>
+</head>
+<body class="bg-pastel-bg text-pastel-text font-sans antialiased min-h-full flex flex-col">
+
+    <!-- Header / Navbar -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 gap-4">
+                
+                <!-- Logo -->
+                <div class="flex items-center gap-3 cursor-pointer" onclick="resetFilters()">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-teal-400 to-sky-400 flex items-center justify-center text-white text-xl shadow-md">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-lg text-slate-800 leading-tight">EduForum THCS</h1>
+                        <p class="text-xs text-pastel-muted hidden sm:block">Diễn đàn Học tập & Tâm lý học đường</p>
+                    </div>
+                </div>
+
+                <!-- Search Bar -->
+                <div class="flex-1 max-w-xl">
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </span>
+                        <input type="text" id="searchInput" oninput="renderQuestions()" 
+                            class="w-full pl-10 pr-4 py-2 bg-slate-100 border border-transparent rounded-full text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-sky-300 focus:ring-2 focus:ring-sky-100 transition"
+                            placeholder="Tìm kiếm câu hỏi, tâm sự, môn học, từ khóa...">
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center gap-2">
+                    <button onclick="openTeacherModal()" class="hidden md:flex items-center gap-2 px-3.5 py-2 rounded-full bg-sky-50 hover:bg-sky-100 text-sky-700 font-medium text-sm transition border border-sky-200">
+                        <i class="fa-solid fa-address-book"></i>
+                        <span>Liên hệ GV</span>
+                    </button>
+                    <button onclick="openModal()" class="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white font-medium text-sm transition shadow-sm hover:shadow active:scale-95">
+                        <i class="fa-solid fa-circle-plus"></i>
+                        <span class="hidden sm:inline">Đặt câu hỏi / Chia sẻ</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+        <!-- Sidebar / Filter Panel -->
+        <aside class="lg:col-span-1 space-y-6">
+            
+            <!-- Category Filter -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="font-semibold text-slate-800 flex items-center gap-2 text-base">
+                        <i class="fa-solid fa-book-open text-sky-500"></i>
+                        Chủ đề & Môn học
+                    </h2>
+                    <button onclick="clearSubjectFilter()" class="text-xs text-sky-600 hover:underline">Tất cả</button>
+                </div>
+                <div class="flex flex-wrap lg:flex-col gap-2" id="subjectFilterContainer">
+                    <!-- Dynamic Subjects Tags -->
+                </div>
+            </div>
+
+            <!-- Grade Filter -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
+                <h2 class="font-semibold text-slate-800 flex items-center gap-2 mb-3 text-base">
+                    <i class="fa-solid fa-layer-group text-purple-500"></i>
+                    Khối lớp
+                </h2>
+                <div class="grid grid-cols-4 lg:grid-cols-2 gap-2" id="gradeFilterContainer">
+                    <!-- Dynamic Grade Badges -->
+                </div>
+            </div>
+
+            <!-- Quick Teacher Contact Card -->
+            <div class="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-100 rounded-2xl p-5 text-slate-700">
+                <h3 class="font-semibold text-purple-900 mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-hand-holding-heart text-pink-600"></i>
+                    Cần hỗ trợ tâm lý?
+                </h3>
+                <p class="text-xs text-slate-600 mb-3 leading-relaxed">Học sinh có thể liên hệ trực tiếp với giáo viên tư vấn tâm lý học đường hoặc giáo viên chủ nhiệm để được bảo mật chia sẻ.</p>
+                <button onclick="openTeacherModal()" class="w-full py-2 bg-white hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-xl text-xs font-semibold transition shadow-sm">
+                    Xem danh sách giáo viên hỗ trợ
+                </button>
+            </div>
+
+            <!-- Statistics Box -->
+            <div class="bg-gradient-to-br from-sky-50 to-teal-50 border border-sky-100 rounded-2xl p-5 text-slate-700">
+                <h3 class="font-semibold text-sky-900 mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-simple text-sky-600"></i>
+                    Thống kê cộng đồng
+                </h3>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-slate-600">Tổng bài viết/thắc mắc:</span>
+                        <span class="font-bold text-sky-700" id="totalQuestionsCount">0</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-600">Lượt thảo luận:</span>
+                        <span class="font-bold text-emerald-700" id="totalAnswersCount">0</span>
+                    </div>
+                </div>
+            </div>
+
+        </aside>
+
+        <!-- Feed Container -->
+        <main class="lg:col-span-3 space-y-4">
+
+            <!-- Active Filters Status Bar -->
+            <div id="filterStatus" class="hidden items-center justify-between bg-white px-4 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-600">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span>Đang lọc theo:</span>
+                    <span id="activeFilterBadge" class="font-medium bg-sky-100 text-sky-800 px-2 py-0.5 rounded-md"></span>
+                </div>
+                <button onclick="resetFilters()" class="text-rose-500 hover:underline font-medium">Bỏ lọc</button>
+            </div>
+
+            <!-- Questions List -->
+            <div id="questionsContainer" class="space-y-4">
+                <!-- Question Cards dynamically generated -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden bg-white rounded-2xl p-12 text-center border border-dashed border-slate-300">
+                <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+                    <i class="fa-regular fa-comments"></i>
+                </div>
+                <h3 class="font-semibold text-slate-700 mb-1">Chưa có bài viết nào</h3>
+                <p class="text-slate-400 text-sm mb-4">Hãy bắt đầu chia sẻ câu hỏi học tập hoặc tâm tư của bạn nhé!</p>
+                <button onclick="openModal()" class="px-4 py-2 bg-emerald-500 text-white rounded-full text-sm font-medium hover:bg-emerald-600 transition">
+                    Đăng bài viết ngay
+                </button>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Modal Form Đặt Câu Hỏi / Tâm Sự -->
+    <div id="questionModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-100 animate-in fade-in zoom-in duration-200">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <h3 class="font-semibold text-slate-800 text-lg flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-emerald-500"></i>
+                    Tạo bài viết mới / Đặt câu hỏi
+                </h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 transition text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body / Form -->
+            <form id="newQuestionForm" onsubmit="handleCreateQuestion(event)" class="p-6 space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Tên của bạn (hoặc Bút danh) *</label>
+                        <input type="text" id="authorName" required placeholder="Nhập tên..." 
+                            class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Vai trò *</label>
+                        <select id="authorRole" required class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:border-sky-400">
+                            <option value="Học sinh">Học sinh</option>
+                            <option value="Giáo viên">Giáo viên</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Chủ đề / Môn học *</label>
+                        <select id="questionSubject" required class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:border-sky-400">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Khối lớp *</label>
+                        <select id="questionGrade" required class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:border-sky-400">
+                            <option value="Lớp 6">Lớp 6</option>
+                            <option value="Lớp 7">Lớp 7</option>
+                            <option value="Lớp 8">Lớp 8</option>
+                            <option value="Lớp 9">Lớp 9</option>
+                            <option value="Toàn trường">Toàn trường</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Tiêu đề *</label>
+                    <input type="text" id="questionTitle" required placeholder="Ví dụ: Làm sao để giải tỏa áp lực thi vào lớp 10? hoặc Bài toán hình..." 
+                        class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-200">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nội dung chi tiết *</label>
+                    <textarea id="questionContent" rows="4" required placeholder="Mô tả chi tiết thắc mắc học tập hoặc tâm sự tư vấn tâm lý học đường..." 
+                        class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-200 resize-none"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 border border-slate-200 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-50">Hủy</button>
+                    <button type="submit" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-medium transition">Đăng bài viết</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Danh Sách Tài Khoản Giáo Viên Tư Vấn & Hỗ Trợ -->
+    <div id="teacherModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full shadow-2xl overflow-hidden border border-slate-100 animate-in fade-in zoom-in duration-200 max-h-[90vh] flex flex-col">
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <h3 class="font-semibold text-slate-800 text-lg flex items-center gap-2">
+                    <i class="fa-solid fa-address-book text-sky-500"></i>
+                    Danh sách Giáo viên Tư vấn & Hỗ trợ học sinh
+                </h3>
+                <button onclick="closeTeacherModal()" class="text-slate-400 hover:text-slate-600 transition text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto space-y-4 flex-1">
+                <p class="text-xs text-slate-500 bg-sky-50 p-3 rounded-xl border border-sky-100 leading-relaxed">
+                    <i class="fa-solid fa-circle-info text-sky-600 mr-1"></i> 
+                    Học sinh có thể liên hệ trực tiếp qua số điện thoại, Zalo hoặc Email dưới đây nếu gặp khó khăn trong học tập hoặc cần hỗ trợ tư vấn tâm lý học đường một cách bảo mật.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="teacherDirectoryContainer">
+                    <!-- Dynamic Teacher List -->
+                </div>
+            </div>
+
+            <div class="px-6 py-3 border-t border-slate-100 bg-slate-50 flex justify-end">
+                <button onclick="closeTeacherModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-medium transition">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 mt-auto text-center text-xs text-pastel-muted">
+        <p>© 2026 EduForum THCS - Diễn đàn kết nối tri thức & Tư vấn tâm lý học đường an toàn.</p>
+    </footer>
+
+    <!-- Logic Script -->
+    <script>
+        // --- CẤU HÌNH DỮ LIỆU MÔN HỌC & TÂM LÝ ---
+        const SUBJECTS = [
+            { name: "Tư vấn tâm lý học đường", icon: "fa-heart-pulse", bg: "bg-pink-100", text: "text-pink-800" },
+            { name: "Toán học", icon: "fa-calculator", bg: "bg-amber-100", text: "text-amber-800" },
+            { name: "Ngữ văn", icon: "fa-book-bookmark", bg: "bg-rose-100", text: "text-rose-800" },
+            { name: "Tiếng Anh", icon: "fa-language", bg: "bg-sky-100", text: "text-sky-800" },
+            { name: "KHTN", icon: "fa-flask", bg: "bg-emerald-100", text: "text-emerald-800" },
+            { name: "Lịch sử & Địa lý", icon: "fa-earth-americas", bg: "bg-orange-100", text: "text-orange-800" },
+            { name: "Tin học", icon: "fa-laptop-code", bg: "bg-indigo-100", text: "text-indigo-800" },
+            { name: "GDCD", icon: "fa-hand-holding-heart", bg: "bg-purple-100", text: "text-purple-800" },
+            { name: "Công nghệ", icon: "fa-gear", bg: "bg-teal-100", text: "text-teal-800" }
+        ];
+
+        const GRADES = ["Lớp 6", "Lớp 7", "Lớp 8", "Lớp 9"];
+
+        // --- DANH SÁCH TÀI KHOẢN GIÁO VIÊN HỖ TRỢ / TƯ VẤN ---
+        const TEACHERS_DIRECTORY = [
+            {
+                name: "Cô Nguyễn Thu Hà",
+                role: "Chuyên trách Tư vấn Tâm lý học đường",
+                email: "thuha.psych@eduforum.vn",
+                phone: "0912.345.678",
+                zalo: "Zalo: 0912345678",
+                office: "Phòng Tư vấn học đường (Tầng 2)",
+                avatarBg: "bg-pink-100 text-pink-700"
+            },
+            {
+                name: "Thầy Trần Minh",
+                role: "Giáo viên chủ nhiệm lớp 9 & Toán học",
+                email: "tranminh.math@eduforum.vn",
+                phone: "0988.112.233",
+                zalo: "Zalo: 0988112233",
+                office: "Văn phòng Khoa Tự nhiên",
+                avatarBg: "bg-amber-100 text-amber-700"
+            },
+            {
+                name: "Cô Lê Thị Mai",
+                role: "Giáo viên Ngữ văn & Hỗ trợ hướng nghiệp",
+                email: "lethimai.lit@eduforum.vn",
+                phone: "0905.998.877",
+                zalo: "Zalo: 0905998877",
+                office: "Văn phòng Khoa Xã hội",
+                avatarBg: "bg-rose-100 text-rose-700"
+            },
+            {
+                name: "Thầy Phạm Hoàng Long",
+                role: "Giáo viên Tin học & Hỗ trợ kỹ thuật diễn đàn",
+                email: "phlong.it@eduforum.vn",
+                phone: "0977.665.544",
+                zalo: "Zalo: 0977665544",
+                office: "Phòng máy Tin học",
+                avatarBg: "bg-indigo-100 text-indigo-700"
+            }
+        ];
+
+        // --- DỮ LIỆU MẪU BAN ĐẦU ---
+        const INITIAL_QUESTIONS = [
+            {
+                id: "q_psych_1",
+                title: "Làm sao để vượt qua cảm giác lo âu, căng thẳng trước kỳ thi tuyển sinh lớp 10?",
+                content: "Em chào thầy cô ạ. Dạo gần đây càng gần kỳ thi em càng cảm thấy lo lắng mất ngủ, đôi khi học bài không vào và hay cáu gắt với người thân. Thầy cô có thể cho em lời khuyên để cân bằng lại tâm lý và sắp xếp thời gian ôn tập hiệu quả không ạ?",
+                author: "Học sinh ẩn danh (9A2)",
+                role: "Học sinh",
+                subject: "Tư vấn tâm lý học đường",
+                grade: "Lớp 9",
+                likes: 24,
+                createdAt: "30 phút trước",
+                answers: [
+                    {
+                        id: "a_p1",
+                        author: "Cô Nguyễn Thu Hà",
+                        role: "Giáo viên",
+                        content: "Chào em, cảm giác lo âu trước kỳ thi lớn là hoàn toàn bình thường mà rất nhiều bạn học sinh gặp phải. Em hãy thử áp dụng phương pháp hít thở sâu, chia nhỏ mục tiêu ôn tập mỗi ngày và đảm bảo ngủ đủ 7-8 tiếng nhé. Em hoàn toàn có thể nhắn tin trực tiếp qua Zalo hoặc gặp cô ở phòng Tư vấn học đường để cô trò mình trò chuyện thêm nhé!",
+                        createdAt: "15 phút trước",
+                        likes: 18
+                    }
+                ]
+            },
+            {
+                id: "q_1",
+                title: "Thầy cô và các bạn cho em hỏi bài toán đường tròn lớp 9 này với ạ!",
+                content: "Cho đường tròn (O; R) và điểm A nằm ngoài đường tròn. Qua A kẻ 2 tiếp tuyến AB, AC. Chứng minh rằng tứ giác ABOC nội tiếp và OA vuông góc với BC tại H. Em đang bị vướng chỗ chứng minh OA vuông góc ạ.",
+                author: "Nguyễn Văn An",
+                role: "Học sinh",
+                subject: "Toán học",
+                grade: "Lớp 9",
+                likes: 12,
+                createdAt: "2 giờ trước",
+                answers: [
+                    {
+                        id: "a_1",
+                        author: "Thầy Trần Minh",
+                        role: "Giáo viên",
+                        content: "Chào An! Để chứng minh OA ⊥ BC, em dùng tính chất 2 tiếp tuyến cắt nhau: AB = AC, và OB = OC = R. Từ đó suy ra OA là đường trung trực của đoạn thẳng BC nên OA ⊥ BC tại H nhé!",
+                        createdAt: "1 giờ trước",
+                        likes: 8
+                    }
+                ]
+            },
+            {
+                id: "q_2",
+                title: "Thí nghiệm nhiệt phân KMnO4 điều chế O2 cần lưu ý điều gì an toàn?",
+                content: "Em đang làm báo cáo thực hành môn KHTN 8 bài điều chế Oxy trong phòng thí nghiệm. Thầy cô cho em hỏi khi ngừng đun đèn cồn thì phải tháo ống dẫn khí trước hay tắt đèn cồn trước ạ?",
+                author: "Lê Hoàng Nam",
+                role: "Học sinh",
+                subject: "KHTN",
+                grade: "Lớp 8",
+                likes: 9,
+                createdAt: "4 giờ trước",
+                answers: [
+                    {
+                        id: "a_2",
+                        author: "Cô Nguyễn Thu Hà",
+                        role: "Giáo viên",
+                        content: "Rất tốt khi em chú ý đến an toàn! BẮT BUỘC phải rút ống dẫn khí ra khỏi chậu nước trước khi tắt đèn cồn em nhé. Nếu tắt đèn cồn trước, áp suất trong ống nghiệm giảm đột ngột khiến nước bị hút ngược vào ống đang nóng gây vỡ ống nghiệm!",
+                        createdAt: "3 giờ trước",
+                        likes: 15
+                    }
+                ]
+            }
+        ];
+
+        let questions = [];
+        let selectedSubject = null;
+        let selectedGrade = null;
+
+        // --- KHỞI TẠO APP ---
+        window.addEventListener('DOMContentLoaded', () => {
+            loadStorageData();
+            renderSubjectFilters();
+            renderGradeFilters();
+            populateModalSubjects();
+            renderTeacherDirectory();
+            renderQuestions();
+        });
+
+        function loadStorageData() {
+            const saved = localStorage.getItem('edu_forum_questions_v2');
+            if (saved) {
+                try {
+                    questions = JSON.parse(saved);
+                } catch (e) {
+                    questions = INITIAL_QUESTIONS;
+                }
+            } else {
+                questions = INITIAL_QUESTIONS;
+                saveStorageData();
+            }
+        }
+
+        function saveStorageData() {
+            localStorage.setItem('edu_forum_questions_v2', JSON.stringify(questions));
+            updateStats();
+        }
+
+        function updateStats() {
+            document.getElementById('totalQuestionsCount').innerText = questions.length;
+            const totalAns = questions.reduce((sum, q) => sum + (q.answers ? q.answers.length : 0), 0);
+            document.getElementById('totalAnswersCount').innerText = totalAns;
+        }
+
+        // --- RENDER SIDEBAR FILTERS & DIRECTORY ---
+        function renderSubjectFilters() {
+            const container = document.getElementById('subjectFilterContainer');
+            container.innerHTML = SUBJECTS.map(s => {
+                const isActive = selectedSubject === s.name;
+                const isPsychology = s.name === "Tư vấn tâm lý học đường";
+                return `
+                    <button onclick="toggleSubjectFilter('${s.name}')" 
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition text-left w-full ${isActive ? 'bg-sky-500 text-white shadow-sm' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'} ${isPsychology && !isActive ? 'border border-pink-200 bg-pink-50/50' : ''}">
+                        <i class="fa-solid ${s.icon} ${isActive ? 'text-white' : s.text}"></i>
+                        <span class="flex-1">${s.name}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function renderGradeFilters() {
+            const container = document.getElementById('gradeFilterContainer');
+            container.innerHTML = GRADES.map(g => {
+                const isActive = selectedGrade === g;
+                return `
+                    <button onclick="toggleGradeFilter('${g}')" 
+                        class="px-3 py-1.5 rounded-xl text-xs font-medium transition ${isActive ? 'bg-purple-600 text-white shadow-sm' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'}">
+                        ${g}
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function populateModalSubjects() {
+            const select = document.getElementById('questionSubject');
+            select.innerHTML = SUBJECTS.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+        }
+
+        function renderTeacherDirectory() {
+            const container = document.getElementById('teacherDirectoryContainer');
+            container.innerHTML = TEACHERS_DIRECTORY.map(t => `
+                <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-2 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-10 h-10 rounded-full ${t.avatarBg} flex items-center justify-center font-bold text-sm shadow-sm">
+                                ${t.name.charAt(4) || 'GV'}
+                            </div>
+                            <div>
+                                <h4.font-semibold class="font-bold text-slate-800 text-sm">${t.name}</h4>
+                                <p class="text-xs text-purple-700 font-medium">${t.role}</p>
+                            </div>
+                        </div>
+                        <div class="space-y-1 text-xs text-slate-600">
+                            <p><i class="fa-solid fa-location-dot w-4 text-slate-400"></i> ${t.office}</p>
+                            <p><i class="fa-solid fa-envelope w-4 text-slate-400"></i> ${t.email}</p>
+                            <p><i class="fa-solid fa-phone w-4 text-slate-400"></i> ${t.phone} (${t.zalo})</p>
+                        </div>
+                    </div>
+                    <div class="pt-2 border-t border-slate-200 flex gap-2">
+                        <a href="tel:${t.phone}" class="flex-1 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-xs font-medium text-center transition">
+                            <i class="fa-solid fa-phone-flip mr-1"></i> Gọi điện
+                        </a>
+                        <a href="https://zalo.me/${t.phone}" target="_blank" class="flex-1 py-1.5 bg-sky-500 hover:bg-sky-600 text-white rounded-lg text-xs font-medium text-center transition">
+                            <i class="fa-solid fa-comments mr-1"></i> Nhắn Zalo
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- XỬ LÝ LỌC & TÌM KIẾM ---
+        function toggleSubjectFilter(subj) {
+            selectedSubject = selectedSubject === subj ? null : subj;
+            renderSubjectFilters();
+            updateFilterStatus();
+            renderQuestions();
+        }
+
+        function toggleGradeFilter(grade) {
+            selectedGrade = selectedGrade === grade ? null : grade;
+            renderGradeFilters();
+            updateFilterStatus();
+            renderQuestions();
+        }
+
+        function clearSubjectFilter() {
+            selectedSubject = null;
+            renderSubjectFilters();
+            updateFilterStatus();
+            renderQuestions();
+        }
+
+        function resetFilters() {
+            selectedSubject = null;
+            selectedGrade = null;
+            document.getElementById('searchInput').value = '';
+            renderSubjectFilters();
+            renderGradeFilters();
+            updateFilterStatus();
+            renderQuestions();
+        }
+
+        function updateFilterStatus() {
+            const statusBox = document.getElementById('filterStatus');
+            const badge = document.getElementById('activeFilterBadge');
+            
+            let filters = [];
+            if (selectedSubject) filters.push(selectedSubject);
+            if (selectedGrade) filters.push(selectedGrade);
+
+            if (filters.length > 0) {
+                statusBox.classList.remove('hidden');
+                statusBox.classList.add('flex');
+                badge.innerText = filters.join(' • ');
+            } else {
+                statusBox.classList.add('hidden');
+                statusBox.classList.remove('flex');
+            }
+        }
+
+        // --- RENDER DANH SÁCH BÀI VIẾT (FEED) ---
+        function renderQuestions() {
+            const searchKeyword = document.getElementById('searchInput').value.toLowerCase().trim();
+            const container = document.getElementById('questionsContainer');
+            const emptyState = document.getElementById('emptyState');
+
+            const filtered = questions.filter(q => {
+                const matchSubject = !selectedSubject || q.subject === selectedSubject;
+                const matchGrade = !selectedGrade || q.grade === selectedGrade;
+                const matchSearch = !searchKeyword || 
+                    q.title.toLowerCase().includes(searchKeyword) || 
+                    q.content.toLowerCase().includes(searchKeyword) ||
+                    q.subject.toLowerCase().includes(searchKeyword);
+                return matchSubject && matchGrade && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                updateStats();
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            container.innerHTML = filtered.map(q => createQuestionCardHTML(q)).join('');
+            updateStats();
+        }
+
+        function createQuestionCardHTML(q) {
+            const subjObj = SUBJECTS.find(s => s.name === q.subject) || { bg: 'bg-slate-100', text: 'text-slate-700', icon: 'fa-book' };
+            const isTeacher = q.role === 'Giáo viên';
+            const isPsychology = q.subject === 'Tư vấn tâm lý học đường';
+
+            const answersHTML = (q.answers || []).map(a => {
+                const aIsTeacher = a.role === 'Giáo viên';
+                return `
+                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100 space-y-1.5 text-xs">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="font-semibold text-slate-800">${a.author}</span>
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-medium ${aIsTeacher ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-slate-200 text-slate-700'}">
+                                    ${aIsTeacher ? '<i class="fa-solid fa-chalkboard-user mr-1"></i>' : ''}${a.role}
+                                </span>
+                            </div>
+                            <span class="text-slate-400 text-[11px]">${a.createdAt}</span>
+                        </div>
+                        <p class="text-slate-700 leading-relaxed text-sm">${a.content}</p>
+                        <div class="pt-1 flex items-center gap-2">
+                            <button onclick="likeAnswer('${q.id}', '${a.id}')" class="text-slate-400 hover:text-rose-500 flex items-center gap-1">
+                                <i class="fa-regular fa-heart text-xs"></i>
+                                <span>${a.likes || 0}</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            return `
+                <div class="bg-white rounded-2xl p-5 border ${isPsychology ? 'border-pink-200 shadow-sm bg-gradient-to-br from-white to-pink-50/20' : 'border-slate-100 shadow-sm'} hover:shadow-md transition space-y-4">
+                    <!-- Card Header -->
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-9 h-9 rounded-full ${isTeacher ? 'bg-amber-100 text-amber-700' : (isPsychology ? 'bg-pink-100 text-pink-700' : 'bg-sky-100 text-sky-700')} flex items-center justify-center font-bold text-sm">
+                                ${q.author.charAt(0)}
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h4 class="font-semibold text-slate-800 text-sm">${q.author}</h4>
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-medium ${isTeacher ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-sky-100 text-sky-800'}">
+                                        ${isTeacher ? '<i class="fa-solid fa-user-graduate mr-1"></i>' : ''}${q.role}
+                                    </span>
+                                </div>
+                                <span class="text-xs text-pastel-muted">${q.createdAt}</span>
+                            </div>
+                        </div>
+
+                        <!-- Badges -->
+                        <div class="flex items-center gap-1.5 flex-wrap justify-end">
+                            <span class="px-2.5 py-1 rounded-lg text-xs font-medium ${subjObj.bg} ${subjObj.text} flex items-center gap-1">
+                                <i class="fa-solid ${subjObj.icon}"></i> ${q.subject}
+                            </span>
+                            <span class="px-2.5 py-1 rounded-lg text-xs font-medium bg-purple-100 text-purple-800">
+                                ${q.grade}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Question Content -->
+                    <div class="space-y-1.5">
+                        <h3 class="font-bold text-slate-800 text-base leading-snug hover:text-sky-600 cursor-pointer">${q.title}</h3>
+                        <p class="text-slate-600 text-sm leading-relaxed whitespace-pre-line">${q.content}</p>
+                    </div>
+
+                    <!-- Interactions Bar -->
+                    <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-xs text-slate-500">
+                        <div class="flex items-center gap-4">
+                            <button onclick="likeQuestion('${q.id}')" class="flex items-center gap-1.5 hover:text-rose-500 transition font-medium">
+                                <i class="fa-solid fa-heart text-rose-400"></i>
+                                <span>${q.likes} Thích</span>
+                            </button>
+                            <button onclick="toggleAnswerBox('${q.id}')" class="flex items-center gap-1.5 hover:text-sky-600 transition font-medium">
+                                <i class="fa-regular fa-comment text-sky-500"></i>
+                                <span>${(q.answers || []).length} Thảo luận</span>
+                            </button>
+                        </div>
+                        ${isPsychology ? '<span class="text-[11px] text-pink-600 font-medium"><i class="fa-solid fa-shield-heart mr-1"></i>Được bảo mật & hỗ trợ bởi GV tâm lý</span>' : ''}
+                    </div>
+
+                    <!-- Answers Section -->
+                    <div id="answersSection_${q.id}" class="pt-3 border-t border-slate-100 space-y-3">
+                        ${answersHTML}
+
+                        <!-- Add Answer Form -->
+                        <div class="pt-2">
+                            <div class="bg-slate-50 rounded-xl p-3 border border-slate-200 space-y-2">
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input type="text" id="ansAuthor_${q.id}" placeholder="Tên của bạn..." 
+                                        class="px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none focus:border-sky-400">
+                                    <select id="ansRole_${q.id}" class="px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none focus:border-sky-400">
+                                        <option value="Học sinh">Học sinh</option>
+                                        <option value="Giáo viên">Giáo viên</option>
+                                    </select>
+                                </div>
+                                <div class="flex gap-2">
+                                    <input type="text" id="ansContent_${q.id}" placeholder="Viết câu trả lời hoặc lời khuyên..." 
+                                        class="flex-1 px-3 py-1.5 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none focus:border-sky-400"
+                                        onkeypress="if(event.key === 'Enter') submitAnswer('${q.id}')">
+                                    <button onclick="submitAnswer('${q.id}')" class="px-3 py-1.5 bg-sky-500 hover:bg-sky-600 text-white rounded-lg text-xs font-medium transition flex items-center gap-1">
+                                        <i class="fa-solid fa-paper-plane"></i> Gửi
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- XỬ LÝ SỰ KIỆN ---
+        function likeQuestion(qId) {
+            const q = questions.find(item => item.id === qId);
+            if (q) {
+                q.likes += 1;
+                saveStorageData();
+                renderQuestions();
+            }
+        }
+
+        function likeAnswer(qId, aId) {
+            const q = questions.find(item => item.id === qId);
+            if (q && q.answers) {
+                const a = q.answers.find(ans => ans.id === aId);
+                if (a) {
+                    a.likes = (a.likes || 0) + 1;
+                    saveStorageData();
+                    renderQuestions();
+                }
+            }
+        }
+
+        function submitAnswer(qId) {
+            const authorInput = document.getElementById(`ansAuthor_${qId}`);
+            const roleInput = document.getElementById(`ansRole_${qId}`);
+            const contentInput = document.getElementById(`ansContent_${qId}`);
+
+            const author = authorInput.value.trim() || "Ẩn danh";
+            const role = roleInput.value;
+            const content = contentInput.value.trim();
+
+            if (!content) {
+                alert("Vui lòng nhập nội dung câu trả lời!");
+                return;
+            }
+
+            const q = questions.find(item => item.id === qId);
+            if (q) {
+                if (!q.answers) q.answers = [];
+                q.answers.push({
+                    id: 'a_' + Date.now(),
+                    author: author,
+                    role: role,
+                    content: content,
+                    createdAt: "Vừa xong",
+                    likes: 0
+                });
+                saveStorageData();
+                renderQuestions();
+            }
+        }
+
+        function handleCreateQuestion(event) {
+            event.preventDefault();
+
+            const author = document.getElementById('authorName').value.trim();
+            const role = document.getElementById('authorRole').value;
+            const subject = document.getElementById('questionSubject').value;
+            const grade = document.getElementById('questionGrade').value;
+            const title = document.getElementById('questionTitle').value.trim();
+            const content = document.getElementById('questionContent').value.trim();
+
+            const newQ = {
+                id: 'q_' + Date.now(),
+                title: title,
+                content: content,
+                author: author,
+                role: role,
+                subject: subject,
+                grade: grade,
+                likes: 0,
+                createdAt: "Vừa xong",
+                answers: []
+            };
+
+            questions.unshift(newQ);
+            saveStorageData();
+            closeModal();
+            document.getElementById('newQuestionForm').reset();
+            renderQuestions();
+        }
+
+        // --- MODAL CONTROLS ---
+        function openModal() {
+            document.getElementById('questionModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('questionModal').classList.add('hidden');
+        }
+
+        function openTeacherModal() {
+            document.getElementById('teacherModal').classList.remove('hidden');
+        }
+
+        function closeTeacherModal() {
+            document.getElementById('teacherModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
